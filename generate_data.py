@@ -82,7 +82,7 @@ def build_records():
         for short, detail in comments:
             comment_id += 1
             ids_by_text[short] = comment_id
-            for version, comment in (("short", short), ("expanded", f"{short} {detail}")):
+            for version, comment in (("short", short), ("long", f"{short} {detail}")):
                 records.append({
                     "commentId": comment_id,
                     "version": version,
@@ -93,10 +93,27 @@ def build_records():
     return records, example
 
 
+def build_placebo_texts(example):
+    """Attach every other comment's extra sentence to the short editable comment.
+
+    This follows Liu's length-only placebo: the added text has a similar length
+    but comes from a different comment. The reference's own sentence is left out.
+    """
+    donors = []
+    comment_id = 0
+    for theme, comments in COMMENTS.items():
+        for _, detail in comments:
+            comment_id += 1
+            if comment_id not in (example["referenceId"], example["editableId"]):
+                donors.append({"donorId": comment_id, "theme": theme, "sentence": detail})
+    return donors
+
+
 def main():
     from sentence_transformers import SentenceTransformer
 
     records, example = build_records()
+    donors = build_placebo_texts(example)
     model = SentenceTransformer(MODEL, device="cpu", model_kwargs={"use_safetensors": True})
     vectors = model.encode(
         [record["text"] for record in records],
@@ -109,10 +126,35 @@ def main():
         [round(float(value), 7) for value in pairwise[i, i + 1:]]
         for i in range(len(records))
     ]
-    output = {"model": MODEL, "example": example, "comments": records, "similarities": similarities}
+
+    placebo_vectors = model.encode(
+        [f"{EDITABLE} {donor['sentence']}" for donor in donors],
+        normalize_embeddings=True,
+        show_progress_bar=False,
+    )
+    reference_index = next(
+        i for i, record in enumerate(records)
+        if record["commentId"] == example["referenceId"] and record["version"] == "short"
+    )
+    placebo_scores = placebo_vectors @ vectors[reference_index]
+    placebo = [
+        {**donor, "score": round(float(score), 7)}
+        for donor, score in zip(donors, placebo_scores)
+    ]
+
+    output = {
+        "model": MODEL,
+        "example": example,
+        "comments": records,
+        "similarities": similarities,
+        "placebo": placebo,
+    }
     path = Path(__file__).with_name("demo-data.json")
     path.write_text(json.dumps(output, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
-    print(f"Wrote {len(records)} comments and {sum(map(len, similarities))} pairwise scores to {path.name}")
+    print(
+        f"Wrote {len(records)} comments, {sum(map(len, similarities))} pairwise scores "
+        f"and {len(placebo)} placebo scores to {path.name}"
+    )
 
 
 if __name__ == "__main__":
