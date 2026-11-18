@@ -14,7 +14,7 @@ function showWaves(summary) {
     row.className = "wave";
     row.innerHTML = `
       <h3>Wave ${wave}</h3>
-      <span class="score" aria-label="Mean cosine similarity ${score.toFixed(3)}">${score.toFixed(3)}</span>
+      <span class="score" aria-label="Mean cosine similarity ${score.toFixed(4)}">${score.toFixed(4)}</span>
       <span class="mix-label">${long} of ${total} answers have 20+ words</span>
       <div class="mix" aria-hidden="true"><div class="long"></div></div>
     `;
@@ -113,16 +113,17 @@ async function start() {
     simulated = experiment.shuffle(RUNS).sort((a, b) => a - b);
     const lower = quantile(simulated, 0.025);
     const upper = quantile(simulated, 0.975);
+    const median = formatDelta(quantile(simulated, 0.5));
     const range = `${formatDelta(lower)} to ${formatDelta(upper)}`;
     const inside = experiment.observed >= lower && experiment.observed <= upper;
     shuffleKey.hidden = false;
     button.textContent = "Rerun the shuffle";
     render();
-    chart.setAttribute("aria-label", `Histogram of ${RUNS} shuffled changes. The middle 95% run from ${range}. The observed change is ${observed}.`);
+    chart.setAttribute("aria-label", `Histogram of ${RUNS} shuffled changes. The middle 95% run from ${range}, with a median of ${median}. The observed change is ${observed}.`);
     const interpretation = inside
-      ? "The observed change falls within that range. Keeping the mix of answer lengths was enough to reproduce a change this large."
+      ? "The observed change falls within that range, so shuffled waves with the same length mix produce changes like it."
       : "The observed change falls outside that range on this run. Compare answers of similar length and check which themes changed.";
-    readout.textContent = `The middle 95% of shuffled changes ran from ${range}. ${interpretation}`;
+    readout.textContent = `The middle 95% of shuffled changes ran from ${range}, with a median of ${median}. ${interpretation}`;
   });
   button.disabled = false;
 }
