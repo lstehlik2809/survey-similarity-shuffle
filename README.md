@@ -1,10 +1,10 @@
-# Survey similarity shuffle
+# Which survey comment is the closest match?
 
-A browser demo of a length-matched shuffle for employee survey comments, adapted from [Fengming Liu’s preprint](https://arxiv.org/abs/2611.21519).
+A browser demo of how expanding one employee survey comment can change its nearest-neighbor ranking, inspired by [Fengming Liu’s preprint](https://arxiv.org/abs/2611.21519).
 
-Each of 48 fictional comments has a short and an expanded version. Each wave contains one version per comment. Both waves have six comments about each of eight themes. Wave 1 has eight expanded answers and Wave 2 has 40. The demo compares the second wave’s mean pairwise cosine with the first wave’s mean.
+The fixture contains 48 fictional comments with eight manually assigned themes. Each comment has a short version and a version with an extra sentence of detail. The demo compares a short reference comment with the 47 other comments. Switching versions replaces one candidate and reranks the candidates by cosine similarity to the reference. The browser displays the top three.
 
-The shuffle reassigns comments between waves without replacement within five-word bands. It keeps the original number of comments from each band in each wave. The chart shows the observed difference and 400 shuffled differences. The readout reports the median and the middle 95% (the 2.5th and 97.5th percentiles) of those differences.
+For a check on real survey feedback, hand-code a sample from one question. Run your usual grouping workflow and compare which comments it groups with the hand-coded themes. Check for split themes and mixed-theme groups separately for short, long and mixed-length pairs.
 
 ## Run locally
 
@@ -21,4 +21,4 @@ python -m pip install sentence-transformers
 python generate_data.py
 ```
 
-The script uses [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5) to generate normalized embeddings locally. It writes the comments and the upper triangle of their cosine similarities to `demo-data.json`. The browser uses those precomputed scores for the live shuffle.
+The script uses [BAAI/bge-base-en-v1.5](https://huggingface.co/BAAI/bge-base-en-v1.5) to generate normalized embeddings locally. It writes both versions of the comments, the example IDs and the upper triangle of cosine similarities to `demo-data.json`. The browser ranks candidates using these scores.

@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="See how a length-matched shuffle can help interpret changes in embedding similarity across employee survey waves.">
-  <title>Can comment length move a similarity score?</title>
+  <meta name="description" content="Add one sentence to a fictional employee survey comment and see how it changes the closest match by cosine similarity.">
+  <title>Can a longer answer change the closest match?</title>
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://lstehlik2809.github.io/survey-similarity-shuffle/">
-  <meta property="og:title" content="Can comment length move a similarity score?">
-  <meta property="og:description" content="Two fictional survey waves raise the same issues. Shuffle answers of similar length to see how much of the rise in similarity length alone produces.">
+  <meta property="og:title" content="Can a longer answer change the closest match?">
+  <meta property="og:description" content="Switch between two versions of one fictional employee comment and see what happens to the closest match.">
   <meta property="og:image" content="https://lstehlik2809.github.io/survey-similarity-shuffle/social-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Histogram of shuffled changes in mean cosine similarity, with the observed change of +0.050 marked in red.">
+  <meta property="og:image:alt" content="With all answers short, the closest match is a Tools comment. After expanding one answer, the closest match is a Communication comment.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
@@ -21,42 +21,56 @@
   <header class="intro">
     <div class="wrap">
       <p class="section-label">Employee listening</p>
-      <h1>Can comment length move a similarity score?</h1>
-      <p>If survey answers look more alike in one wave than another, see how much of that change you can reproduce by keeping each wave’s mix of short and long answers.</p>
+      <h1>Can a longer answer change the closest match?</h1>
+      <p>Add one sentence to a fictional survey answer and see which comment comes closest by cosine similarity.</p>
     </div>
   </header>
   <main class="wrap">
-    <div class="experiment" aria-label="Length-matched shuffle experiment">
-      <section class="waves" aria-labelledby="waves-title">
-        <h2 id="waves-title">Two fictional survey waves</h2>
-        <p>Both waves contain the same 48 comments, six on each of eight themes. Wave 2 has more of them written out with an extra sentence of detail.</p>
-        <div id="wave-summary"></div>
-        <p class="wave-note">The score averages cosine similarity across all pairs of answers within a wave. Higher values mean the embeddings are closer together.</p>
+    <div class="experiment">
+      <section class="reference" aria-labelledby="reference-title">
+        <h2 id="reference-title">Reference comment</h2>
+        <blockquote id="reference-text"></blockquote>
+        <p class="theme" id="reference-theme"></p>
+        <fieldset id="version-controls" disabled>
+          <legend>Version of the priorities comment</legend>
+          <div class="options">
+            <label><input type="radio" name="version" value="short" checked> Short</label>
+            <label><input type="radio" name="version" value="expanded"> Expanded</label>
+          </div>
+        </fieldset>
+        <noscript><p>Enable JavaScript to compare the two versions.</p></noscript>
       </section>
       <section class="comparison" aria-labelledby="comparison-title">
-        <h2 id="comparison-title">What would length alone produce?</h2>
-        <p>Shuffle the answers across waves within five-word bands. Each wave keeps its mix of answer lengths.</p>
-        <button id="shuffle" type="button" disabled>Run the length-matched shuffle</button>
-        <noscript><p>Enable JavaScript to run the shuffle.</p></noscript>
-        <div class="chart-frame">
-          <div class="legend" aria-hidden="true">
-            <span><i class="marker" aria-hidden="true"></i>Observed change</span>
-            <span id="shuffle-key" hidden><i class="swatch" aria-hidden="true"></i>Changes after shuffling</span>
-          </div>
-          <canvas id="chart" role="img" aria-label="Loading the observed change in mean cosine similarity."></canvas>
-          <div class="axis-title">Change in mean cosine similarity · Wave&nbsp;2 minus Wave&nbsp;1</div>
-        </div>
+        <h2 id="comparison-title">Closest matches</h2>
+        <p class="match-count" id="match-count"></p>
+        <ol id="matches" class="matches"></ol>
         <p class="readout" id="readout" role="status">Loading the demo data…</p>
+        <template id="match-row">
+          <li>
+            <div class="match">
+              <div>
+                <p class="match-text"></p>
+                <p class="theme match-theme"></p>
+              </div>
+              <span class="match-score"></span>
+            </div>
+          </li>
+        </template>
       </section>
     </div>
     <section class="notes" aria-labelledby="notes-title">
-      <h2 id="notes-title">Try this on your own survey</h2>
-      <p>Take answers to the same question across waves and rerun the shuffle with your existing embeddings. If the shuffle repeatedly produces a similar change, compare answers of similar length and read a sample before drawing conclusions about what people are saying.</p>
-      <p>A result inside the range means length could explain the change. It doesn’t show the themes stayed the same. With a few dozen answers per wave the range is wide, so a real shift in themes can sit inside it too.</p>
+      <h2 id="notes-title">Check your grouping on real feedback</h2>
+      <ol>
+        <li>Sample answers to one survey question across the range of lengths people write. Code the themes by hand using a shared set of labels.</li>
+        <li>Pick short and long versions of comments that still raise the same issue. Compare both versions with the same set of candidates and see whether the closest match changes theme.</li>
+        <li>Run your usual grouping workflow. Of the pairs it puts together, what share have a theme in common? Of the pairs with a theme in common, what share land in the same group?</li>
+        <li>Make both comparisons separately for short pairs, long pairs and mixed-length pairs. If the model struggles at some lengths, use the same checks to compare another embedding model.</li>
+      </ol>
       <details>
         <summary>How this demo was made</summary>
-        <p>Each of 48 fictional comments has a short and an expanded version. Each wave gets one version per comment, with all eight themes equally represented. The demo computes cosine similarities from precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>. It uses BGE because Liu found it reacts strongly to length in Reddit comments, which makes the effect easy to see. Across both waves, two expanded answers on different themes average 0.585, higher than two short answers on the same theme (0.573). Another model, or other text, can show a smaller effect or one in the opposite direction. The demo randomly reassigns the answers within each five-word band without replacement and recalculates the difference between waves 400 times.</p>
-        <p>The middle 95% describes the spread of simulated changes in this example. The result depends on the comments, length bands and embedding model. Each run draws 400 new shuffles, so the range shifts slightly from run to run.</p>
+        <p>Liu tested average cosine on shorter and longer excerpts from the same comments. He also ran a placebo that swapped in comments of similar length, and adjusted the average by computing it within word-count bands and weighting the bands equally. This demo adapts his excerpt check to nearest matches.</p>
+        <p>The reference and candidates come from a set of 48 fictional comments with manually assigned themes. The demo starts with the short versions and swaps one of the 47 candidates for its expanded version. It ranks every candidate by its cosine similarity to the reference using precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>.</p>
+        <p>The expansion adds detail as well as words. The example shows how a change in wording can reorder nearest matches.</p>
       </details>
     </section>
     <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>. <a href="https://github.com/lstehlik2809/survey-similarity-shuffle">Source code and data script on GitHub</a>.</footer>
