@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="See how a length-matched shuffle can help interpret changes in embedding similarity across employee survey waves.">
+  <title>Can comment length move a similarity score?</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <header class="intro">
+    <div class="wrap">
+      <p class="section-label">Employee listening</p>
+      <h1>Can comment length move a similarity score?</h1>
+      <p>If survey answers look more alike in one wave than another, see how much of that change you can reproduce by keeping each wave’s mix of short and long answers.</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="experiment" aria-label="Length-matched shuffle experiment">
+      <section class="waves" aria-labelledby="waves-title">
+        <h2 id="waves-title">Two fictional survey waves</h2>
+        <p>Both waves cover the same themes. The second has more long answers.</p>
+        <div id="wave-summary"></div>
+        <p class="wave-note">The score averages cosine similarity across all pairs of answers within a wave. Higher values mean the embeddings are closer together.</p>
+      </section>
+      <section class="comparison" aria-labelledby="comparison-title">
+        <h2 id="comparison-title">What would length alone produce?</h2>
+        <p>Shuffle the answers across waves within five-word bands. Each wave keeps its mix of answer lengths.</p>
+        <button id="shuffle" type="button" disabled>Run the length-matched shuffle</button>
+        <noscript><p>Enable JavaScript to run the shuffle.</p></noscript>
+        <div class="chart-frame">
+          <div class="legend" aria-hidden="true">
+            <span><i class="marker" aria-hidden="true"></i>Observed change</span>
+            <span id="shuffle-key" hidden><i class="swatch" aria-hidden="true"></i>Changes after shuffling</span>
+          </div>
+          <canvas id="chart" role="img" aria-label="Loading the observed change in mean cosine similarity."></canvas>
+          <div class="axis-title">Change in mean cosine similarity · Wave 2 minus Wave 1</div>
+        </div>
+        <p class="readout" id="readout" role="status">Loading the demo data…</p>
+      </section>
+    </div>
+    <section class="notes" aria-labelledby="notes-title">
+      <h2 id="notes-title">Try this on your own survey</h2>
+      <p>Take answers to the same question across waves and rerun the shuffle with your existing embeddings. If the shuffle repeatedly produces a similar change, compare answers of similar length and read a sample before drawing conclusions about what people are saying.</p>
+      <details>
+        <summary>How this demo was made</summary>
+        <p>Each of 48 fictional comments has a short and an expanded version. Each wave gets one version per comment, with all eight themes equally represented. The demo computes cosine similarities from precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>. It randomly reassigns the answers within each five-word band without replacement and recalculates the difference between waves 400 times.</p>
+        <p>The middle 95% describes the spread of simulated changes in this example. The result depends on the comments, length bands and embedding model.</p>
+      </details>
+    </section>
+    <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>.</footer>
+  </main>
+</body>
+</html>
