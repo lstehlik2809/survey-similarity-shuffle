@@ -1,13 +1,11 @@
 """Generate the demo data with real cosine similarities for fictional comments."""
 
 import json
-import random
 from pathlib import Path
 
-from sentence_transformers import SentenceTransformer
-
-
 MODEL = "BAAI/bge-base-en-v1.5"
+REFERENCE = "Software updates interrupt my work."
+EDITABLE = "Priorities change without much explanation."
 COMMENTS = {
     "Staffing": [
         ("We're short staffed on Mondays.", "The queue builds up before lunch and we end up asking the next shift to clear work that was due in the morning."),
@@ -76,22 +74,29 @@ COMMENTS = {
 }
 
 
-def main():
-    randomizer = random.Random(261121519)
+def build_records():
     records = []
+    ids_by_text = {}
+    comment_id = 0
     for theme, comments in COMMENTS.items():
-        long_in_first_wave = randomizer.randrange(len(comments))
-        for index, (short, detail) in enumerate(comments):
-            long = f"{short} {detail}"
-            wave_one, wave_two = (long, short) if index == long_in_first_wave else (short, long)
-            for wave, comment in enumerate((wave_one, wave_two), start=1):
+        for short, detail in comments:
+            comment_id += 1
+            ids_by_text[short] = comment_id
+            for version, comment in (("short", short), ("expanded", f"{short} {detail}")):
                 records.append({
-                    "wave": wave,
+                    "commentId": comment_id,
+                    "version": version,
                     "theme": theme,
-                    "words": len(comment.split()),
                     "text": comment,
                 })
+    example = {"referenceId": ids_by_text[REFERENCE], "editableId": ids_by_text[EDITABLE]}
+    return records, example
 
+
+def main():
+    from sentence_transformers import SentenceTransformer
+
+    records, example = build_records()
     model = SentenceTransformer(MODEL, device="cpu", model_kwargs={"use_safetensors": True})
     vectors = model.encode(
         [record["text"] for record in records],
@@ -104,7 +109,7 @@ def main():
         [round(float(value), 7) for value in pairwise[i, i + 1:]]
         for i in range(len(records))
     ]
-    output = {"model": MODEL, "comments": records, "similarities": similarities}
+    output = {"model": MODEL, "example": example, "comments": records, "similarities": similarities}
     path = Path(__file__).with_name("demo-data.json")
     path.write_text(json.dumps(output, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"Wrote {len(records)} comments and {sum(map(len, similarities))} pairwise scores to {path.name}")
