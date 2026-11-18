@@ -3,16 +3,16 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Add one sentence to a fictional employee survey comment and see how it changes the closest match by cosine similarity.">
-  <title>Can a longer answer change the closest match?</title>
+  <meta name="description" content="48 fictional employee survey comments, each in a short and a long version: see when a longer answer changes the closest match, and how answer length affects a similarity cut-off.">
+  <title>Does a longer answer change what counts as similar?</title>
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://lstehlik2809.github.io/survey-similarity-shuffle/">
-  <meta property="og:title" content="Can a longer answer change the closest match?">
-  <meta property="og:description" content="Switch between two versions of one fictional employee comment and see what happens to the closest match.">
+  <meta property="og:title" content="Does a longer answer change what counts as similar?">
+  <meta property="og:description" content="At a 0.60 cosine cut-off, two long comments on different themes were grouped as often as a short and a long comment on the same theme.">
   <meta property="og:image" content="https://lstehlik2809.github.io/survey-similarity-shuffle/social-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="With all answers short, the closest match is a Tools comment. After expanding one answer, the closest match is a Communication comment.">
+  <meta property="og:image:alt" content="At a 0.60 cut-off, 41% of long different-theme pairs and 41% of short-and-long same-theme pairs were grouped, against 13% of short different-theme pairs.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
@@ -21,58 +21,99 @@
   <header class="intro">
     <div class="wrap">
       <p class="section-label">Employee listening</p>
-      <h1>Can a longer answer change the closest match?</h1>
-      <p>Add one sentence to a fictional survey answer and see which comment comes closest by cosine similarity.</p>
+      <h1>Does a longer answer change what counts as similar?</h1>
+      <p>48 fictional survey comments, each written in a short and a long version, compared by cosine similarity with the BGE embedding model.</p>
     </div>
   </header>
+
   <main class="wrap">
-    <div class="experiment">
-      <section class="reference" aria-labelledby="reference-title">
-        <h2 id="reference-title">Reference comment</h2>
-        <blockquote id="reference-text"></blockquote>
-        <p class="theme" id="reference-theme"></p>
-        <fieldset id="version-controls" disabled>
-          <legend>Version of the priorities comment</legend>
-          <div class="options">
-            <label><input type="radio" name="version" value="short" checked> Short</label>
-            <label><input type="radio" name="version" value="expanded"> Expanded</label>
-          </div>
-        </fieldset>
-        <noscript><p>Enable JavaScript to compare the two versions.</p></noscript>
-      </section>
-      <section class="comparison" aria-labelledby="comparison-title">
-        <h2 id="comparison-title">Closest matches</h2>
-        <p class="match-count" id="match-count"></p>
-        <ol id="matches" class="matches"></ol>
-        <p class="readout" id="readout" role="status">Loading the demo data…</p>
-        <template id="match-row">
-          <li>
-            <div class="match">
-              <div>
-                <p class="match-text"></p>
-                <p class="theme match-theme"></p>
-              </div>
-              <span class="match-score"></span>
+    <section class="step" aria-labelledby="step-1-title">
+      <p class="step-label">Step 1 · One longer comment</p>
+      <h2 id="step-1-title">Lengthening one candidate can change the closest match</h2>
+      <div class="experiment panel">
+        <section class="reference" aria-labelledby="reference-title">
+          <h3 id="reference-title">Reference comment</h3>
+          <blockquote id="reference-text"></blockquote>
+          <p class="theme" id="reference-theme"></p>
+          <fieldset id="version-controls" disabled>
+            <legend>Version of the priorities comment</legend>
+            <div class="options">
+              <label><input type="radio" name="version" value="short" checked> Short</label>
+              <label><input type="radio" name="version" value="long"> Long</label>
             </div>
-          </li>
-        </template>
-      </section>
-    </div>
+          </fieldset>
+          <noscript><p>Enable JavaScript to compare the two versions.</p></noscript>
+        </section>
+        <section class="comparison" aria-labelledby="comparison-title">
+          <h3 id="comparison-title">Closest matches</h3>
+          <p class="match-count" id="match-count"></p>
+          <ol id="matches" class="matches"></ol>
+          <p class="readout" id="readout" role="status">Loading the demo data…</p>
+          <template id="match-row">
+            <li>
+              <div class="match">
+                <div>
+                  <p class="match-text"></p>
+                  <p class="theme match-theme"></p>
+                </div>
+                <span class="match-score"></span>
+              </div>
+            </li>
+          </template>
+        </section>
+      </div>
+      <p class="step-note" id="rarity-note"></p>
+    </section>
+
+    <section class="step" aria-labelledby="step-2-title">
+      <p class="step-label">Step 2 · Was it the length?</p>
+      <h2 id="step-2-title">A borrowed sentence of similar length lowered the score on average</h2>
+      <div class="panel chart-panel">
+        <p>Following Liu’s placebo, the short priorities comment gets each of the other 46 extra sentences in place of its own. Each dot is one borrowed sentence.</p>
+        <ul class="legend" aria-label="Dot colors">
+          <li><span class="swatch same"></span><span id="legend-same">From another comment on the reference’s theme</span></li>
+          <li><span class="swatch different"></span>From a comment on another theme</li>
+        </ul>
+        <figure class="strip">
+          <div id="placebo-chart" class="strip-chart"></div>
+          <figcaption id="placebo-axis">Cosine similarity with the reference comment</figcaption>
+        </figure>
+        <p class="readout" id="placebo-readout"></p>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="step-3-title">
+      <p class="step-label">Step 3 · Where length shows up</p>
+      <h2 id="step-3-title">Two long comments clear a similarity <span class="nowrap">cut-off</span> more easily, even on different themes</h2>
+      <div class="panel chart-panel">
+        <div class="cutoff-control">
+          <label for="cutoff">Group two comments when their cosine is above <output id="cutoff-value" for="cutoff">0.60</output></label>
+          <input type="range" id="cutoff" min="0.50" max="0.70" step="0.01" value="0.60" disabled>
+          <div class="range-ends" aria-hidden="true"><span>0.50</span><span>0.70</span></div>
+        </div>
+        <p class="rates-heading">Share of pairs grouped together</p>
+        <div id="rates" class="rates"></div>
+        <p class="readout" id="cutoff-readout" role="status"></p>
+      </div>
+    </section>
+
     <section class="notes" aria-labelledby="notes-title">
       <h2 id="notes-title">Check your grouping on real feedback</h2>
       <ol>
-        <li>Sample answers to one survey question across the range of lengths people write. Code the themes by hand using a shared set of labels.</li>
-        <li>Pick short and long versions of comments that still raise the same issue. Compare both versions with the same set of candidates and see whether the closest match changes theme.</li>
-        <li>Run your usual grouping workflow. Of the pairs it puts together, what share have a theme in common? Of the pairs with a theme in common, what share land in the same group?</li>
-        <li>Make both comparisons separately for short pairs, long pairs and mixed-length pairs. If the model struggles at some lengths, use the same checks to compare another embedding model.</li>
+        <li>Take hand-coded answers to one survey question, across the range of lengths people write. Code the themes with a shared set of labels.</li>
+        <li>Cut long answers to their first sentence, keeping those where the issue is still clear. Compare both versions against the same candidates and see whether the closest match changes theme.</li>
+        <li>Run your usual grouping workflow on the hand-coded sample. How often do grouped pairs share a theme, and how often do pairs that share a theme end up together?</li>
+        <li>Check both separately for two short answers, two long answers and mixed-length pairs. In these fictional comments, this was the check that showed the length problem. If the model struggles at some lengths, compare another embedding model the same way.</li>
       </ol>
       <details>
         <summary>How this demo was made</summary>
-        <p>Liu tested average cosine on shorter and longer excerpts from the same comments. He also ran a placebo that swapped in comments of similar length, and adjusted the average by computing it within word-count bands and weighting the bands equally. This demo adapts his excerpt check to nearest matches.</p>
-        <p>The reference and candidates come from a set of 48 fictional comments with manually assigned themes. The demo starts with the short versions and swaps one of the 47 candidates for its expanded version. It ranks every candidate by its cosine similarity to the reference using precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>.</p>
-        <p>The expansion adds detail as well as words. The example shows how a change in wording can reorder nearest matches.</p>
+        <p>Fengming Liu cut the same Reddit comments to different lengths. Average cosine rose with length for two of his three models, including BGE. A length-only placebo, which swapped each comment for a random one of similar length, reproduced 81% of the effect from his earlier study. To correct for length, he averaged cosine within word-count bands and weighted each band equally. This demo adapts his excerpt check and his placebo to nearest matches and to a grouping cut-off.</p>
+        <p>The 48 fictional comments cover eight themes, six per theme, coded by hand. Each has a short version of 4 to 7 words and a long version that adds one sentence, for 26 to 31 words in total. Scores are cosine similarities between precomputed, normalized <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a> (bge-base-en-v1.5).</p>
+        <p>Step 1 uses each comment as the reference in turn and lengthens one of the other 47 at a time, which gives 48 × 47 = 2,256 single swaps. Step 2 attaches each of the other 46 extra sentences to the priorities comment. It leaves out the reference’s own sentence. Step 3 counts 1,128 pairs of two short comments, 1,128 pairs of two long comments and 2,256 short-and-long pairs, never pairing a comment with its own other version. About 11% of the pairs in each group share a theme.</p>
+        <p>The default cut-off of 0.60 is where the two rates compared in step 3 meet. From 0.55 to 0.65, they stay within 8 points of each other. One person wrote all the long versions in a similar style, so some of the lift between two long comments may come from shared wording rather than length alone. Treat the numbers as an illustration, not as an estimate for real survey data.</p>
       </details>
     </section>
+
     <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>. <a href="https://github.com/lstehlik2809/survey-similarity-shuffle">Source code and data script on GitHub</a>.</footer>
   </main>
 </body>
