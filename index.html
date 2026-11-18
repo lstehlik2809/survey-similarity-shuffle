@@ -20,7 +20,7 @@
     <div class="experiment" aria-label="Length-matched shuffle experiment">
       <section class="waves" aria-labelledby="waves-title">
         <h2 id="waves-title">Two fictional survey waves</h2>
-        <p>Both waves cover the same themes. The second has more long answers.</p>
+        <p>Both waves contain the same 48 comments, six on each of eight themes. Wave 2 has more of them written out with an extra sentence of detail.</p>
         <div id="wave-summary"></div>
         <p class="wave-note">The score averages cosine similarity across all pairs of answers within a wave. Higher values mean the embeddings are closer together.</p>
       </section>
@@ -35,7 +35,7 @@
             <span id="shuffle-key" hidden><i class="swatch" aria-hidden="true"></i>Changes after shuffling</span>
           </div>
           <canvas id="chart" role="img" aria-label="Loading the observed change in mean cosine similarity."></canvas>
-          <div class="axis-title">Change in mean cosine similarity · Wave 2 minus Wave 1</div>
+          <div class="axis-title">Change in mean cosine similarity · Wave&nbsp;2 minus Wave&nbsp;1</div>
         </div>
         <p class="readout" id="readout" role="status">Loading the demo data…</p>
       </section>
@@ -43,10 +43,11 @@
     <section class="notes" aria-labelledby="notes-title">
       <h2 id="notes-title">Try this on your own survey</h2>
       <p>Take answers to the same question across waves and rerun the shuffle with your existing embeddings. If the shuffle repeatedly produces a similar change, compare answers of similar length and read a sample before drawing conclusions about what people are saying.</p>
+      <p>A result inside the range means length could explain the change. It doesn’t show the themes stayed the same. With a few dozen answers per wave the range is wide, so a real shift in themes can sit inside it too.</p>
       <details>
         <summary>How this demo was made</summary>
-        <p>Each of 48 fictional comments has a short and an expanded version. Each wave gets one version per comment, with all eight themes equally represented. The demo computes cosine similarities from precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>. It randomly reassigns the answers within each five-word band without replacement and recalculates the difference between waves 400 times.</p>
-        <p>The middle 95% describes the spread of simulated changes in this example. The result depends on the comments, length bands and embedding model.</p>
+        <p>Each of 48 fictional comments has a short and an expanded version. Each wave gets one version per comment, with all eight themes equally represented. The demo computes cosine similarities from precomputed <a href="https://huggingface.co/BAAI/bge-base-en-v1.5">BGE embeddings</a>. It uses BGE because Liu found it reacts strongly to length in Reddit comments, which makes the effect easy to see. Across both waves, two expanded answers on different themes average 0.585, higher than two short answers on the same theme (0.573). Another model, or other text, can show a smaller effect or one in the opposite direction. The demo randomly reassigns the answers within each five-word band without replacement and recalculates the difference between waves 400 times.</p>
+        <p>The middle 95% describes the spread of simulated changes in this example. The result depends on the comments, length bands and embedding model. Each run draws 400 new shuffles, so the range shifts slightly from run to run.</p>
       </details>
     </section>
     <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>.</footer>

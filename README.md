@@ -4,7 +4,7 @@ A browser demo of a length-matched shuffle for employee survey comments, adapted
 
 Each of 48 fictional comments has a short and an expanded version. Each wave contains one version per comment. Both waves have six comments about each of eight themes. Wave 1 has eight expanded answers and Wave 2 has 40. The demo compares the second wave’s mean pairwise cosine with the first wave’s mean.
 
-The shuffle reassigns comments between waves without replacement within five-word bands. It keeps the original number of comments from each band in each wave. The chart shows the observed difference and 400 shuffled differences. The middle 95% reports the 2.5th and 97.5th percentiles of those differences.
+The shuffle reassigns comments between waves without replacement within five-word bands. It keeps the original number of comments from each band in each wave. The chart shows the observed difference and 400 shuffled differences. The readout reports the median and the middle 95% (the 2.5th and 97.5th percentiles) of those differences.
 
 ## Run locally
 
