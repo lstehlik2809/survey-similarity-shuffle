@@ -5,6 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="See how a length-matched shuffle can help interpret changes in embedding similarity across employee survey waves.">
   <title>Can comment length move a similarity score?</title>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://lstehlik2809.github.io/survey-similarity-shuffle/">
+  <meta property="og:title" content="Can comment length move a similarity score?">
+  <meta property="og:description" content="Two fictional survey waves raise the same issues. Shuffle answers of similar length to see how much of the rise in similarity length alone produces.">
+  <meta property="og:image" content="https://lstehlik2809.github.io/survey-similarity-shuffle/social-card.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Histogram of shuffled changes in mean cosine similarity, with the observed change of +0.050 marked in red.">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="./styles.css">
   <script type="module" src="./app.js"></script>
 </head>
@@ -50,7 +59,7 @@
         <p>The middle 95% describes the spread of simulated changes in this example. The result depends on the comments, length bands and embedding model. Each run draws 400 new shuffles, so the range shifts slightly from run to run.</p>
       </details>
     </section>
-    <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>.</footer>
+    <footer>Based on <a href="https://arxiv.org/abs/2611.21519">Fengming Liu’s preprint on embedding cosine and text length</a>. <a href="https://github.com/lstehlik2809/survey-similarity-shuffle">Source code and data script on GitHub</a>.</footer>
   </main>
 </body>
 </html>
